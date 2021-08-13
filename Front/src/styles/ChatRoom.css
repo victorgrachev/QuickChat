@@ -1,0 +1,142 @@
+.chat-room {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.room {
+  height: 100%;
+  width: 20%;
+  background-color: rgba(255, 255, 255, 0.685);
+  overflow: auto;
+}
+
+.room h1 {
+  font-size: 25px;
+  text-align: center;
+  margin: 0;
+  background-color: #666666;
+  background-clip: text;
+  color: transparent;
+  text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
+}
+
+.room h1:hover {
+  cursor: default;
+  user-select: none;
+}
+
+.room ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.room li {
+  font-size: 25px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 10px solid transparent;
+  border-image: linear-gradient(to right, transparent 0%, #adf2f7 100%);
+  border-image-slice: 1;
+}
+
+.room li span {
+  padding: 10px;
+}
+
+.room li:before {
+  content: '';
+  background-image: url(https://image.flaticon.com/icons/png/512/3211/3211532.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 18px;
+  background-size: contain;
+}
+
+.room li:hover {
+  cursor: default;
+  background-color: rgb(25, 202, 202);
+  user-select: none;
+}
+
+.chat {
+  height: 100%;
+  width: 80%;
+}
+
+.chat-window {
+  height: 80%;
+  padding: 20px;
+  border: 10px solid transparent;
+  border-image: linear-gradient(to right, transparent 0%, #adf2f7 100%);
+  border-image-slice: 1;
+  overflow: auto;
+  color: white;
+}
+
+/* .chat-window {
+} */
+
+.chat-window p {
+  font-size: 25px;
+  margin: 0;
+  background-color: #e9e9e9;
+  background-clip: text;
+  color: transparent;
+  /* text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px; */
+}
+
+.chat-window p:hover {
+  cursor: default;
+  user-select: none;
+}
+
+.chat-window span {
+  text-shadow: #e9e9e9 0px 3px 3px;
+}
+
+.message-window {
+  height: 20%;
+}
+
+.message-window form {
+  height: 100%;
+}
+
+.message-window textarea {
+  padding: 12px 20px;
+  margin: 10px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  resize: none;
+  float: left;
+}
+
+.message-window form button {
+  padding: 10px;
+  margin: 10px;
+  font-weight: bold;
+  color: rgb(68, 68, 68);
+  text-decoration: none;
+  user-select: none;
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  background: rgb(245, 245, 245) linear-gradient(#f4f4f4, #f1f1f1);
+}
+.message-window form button:hover {
+  color: rgb(24, 24, 24);
+  border: 1px solid rgb(198, 198, 198);
+  background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.message-window form button:active {
+  color: rgb(51, 51, 51);
+  border: 1px solid rgb(204, 204, 204);
+  background: rgb(238, 238, 238)
+    linear-gradient(rgb(238, 238, 238), rgb(224, 224, 224));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
+}
