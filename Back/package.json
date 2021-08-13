@@ -1,0 +1,23 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victorgrachev/QuickChat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/victorgrachev/QuickChat/issues"
+  },
+  "homepage": "https://github.com/victorgrachev/QuickChat#readme",
+  "dependencies": {
+    "socket-io": "^1.0.0",
+    "socket.io": "^4.1.3"
+  }
+}
