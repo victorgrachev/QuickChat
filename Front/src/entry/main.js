@@ -4,33 +4,29 @@ import Loader from '@module/Loader.js';
 import ChatRoom from '@module/ChatRoom.js';
 import SocketIO from 'socket.io-client';
 
-const domContainer = document.querySelector('.container');
+const domContainer = {
+  elem: document.querySelector('.container'),
+  cleanContainer: function () {
+    this.elem.childNodes.forEach((child) => child.remove());
+  },
+  addContainer: function (p_elem) {
+    this.elem.append(p_elem);
+  },
+};
+
 let bAuthorization = false;
+let oAuthorization;
 let sNickNameUser;
-let oAuthorization, oLoader, oChatRoom;
 
 let socket = SocketIO.connect(`http://127.0.0.1:8080/`);
 
-const createMsg = (p_msg, p_user) => {
-  const oListMsg = document.querySelector('.chat-window');
-  const oMsg = document.createElement('p');
-  const oUserMsg = document.createElement('span');
-
-  oUserMsg.innerHTML = `${p_user ? p_user : 'Admin'}: `;
-
-  oMsg.append(oUserMsg);
-  oMsg.append(document.createTextNode(p_msg));
-  oListMsg.append(oMsg);
-};
-
-const authSubmit = (event) => {
+const authorizationSubmit = (event) => {
   event.preventDefault();
   bAuthorization = true;
-  sNickNameUser = event.target[0].value;
+  sNickNameUser = event.target.firstElementChild.firstElementChild.value;
 
-  domContainer.innerHTML = null;
-  oLoader = new Loader();
-  domContainer.appendChild(oLoader.render());
+  domContainer.cleanContainer();
+  domContainer.addContainer(new Loader().render());
 
   socket.emit('sign_in', sNickNameUser, ({ user }) => {
     const onSubmit = (event) => {
@@ -40,10 +36,13 @@ const authSubmit = (event) => {
       createMsg(sMsg, sNickNameUser);
       socket.emit('send_message', sMsg, sNickNameUser);
     };
-    oChatRoom = new ChatRoom({ user, onSubmit });
-    domContainer.innerHTML = null;
-    domContainer.appendChild(oChatRoom.render());
-    createMsg(`Welcome to QuickChat, ${sNickNameUser}!`);
+    const oChatRoom = new ChatRoom({ user, onSubmit });
+    domContainer.cleanContainer();
+    domContainer.addContainer(oChatRoom.render());
+    const oNewMsg = ChatRoom.createMsg(
+      `Welcome to QuickChat, ${sNickNameUser}!`
+    );
+    document.querySelector('.chat-window').append(oNewMsg);
   });
 };
 
@@ -74,14 +73,16 @@ const onEventDeleteUser = (id) => {
   const oUser = document.querySelector(`.room li#${id}`);
   const sNickName = oUser.firstChild.innerHTML;
   oUser.remove();
-  createMsg(`${sNickName} disconnected`);
+  const oNewMsg = ChatRoom.createMsg(`${sNickName} disconnected`);
+  document.querySelector('.chat-window').append(oNewMsg);
 };
 
 const onEventSignMsg = (nickname) => {
   if (!bAuthorization) {
     return;
   }
-  createMsg(`${nickname} join QuickChat`);
+  const oNewMsg = ChatRoom.createMsg(`${nickname} join QuickChat`);
+  document.querySelector('.chat-window').append(oNewMsg);
 };
 
 const onEventSendMessageClient = (p_msg, p_nickname) => {
@@ -96,8 +97,8 @@ const onEventSendMessageClient = (p_msg, p_nickname) => {
   player.play();
 };
 
-oAuthorization = new Authorization({ onSubmit: authSubmit });
-domContainer.appendChild(oAuthorization.render());
+oAuthorization = new Authorization({ onSubmit: authorizationSubmit });
+domContainer.addContainer(oAuthorization.render());
 
 socket.on('add_user', onEventAddUser);
 socket.on('delete_user', onEventDeleteUser);
