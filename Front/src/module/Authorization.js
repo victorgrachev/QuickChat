@@ -32,12 +32,11 @@ function Authorization({ onSubmit }) {
     oRootElement.classList.add('authorizate');
     oRootElement.innerHTML = oElementAuthorization;
 
-    const oForm = oRootElement.querySelector('form');
-    oForm.addEventListener('submit', (event) => {
-      if (onSubmit) {
-        onSubmit(event);
-      }
-    });
+    if (onSubmit) {
+      const oForm = oRootElement.querySelector('form');
+      oForm.addEventListener('submit', (event) => onSubmit(event));
+    }
+
     return oRootElement;
   }
 
