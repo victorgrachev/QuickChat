@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import '../styles/Authorication.css';
 
 function Authorization({ onSubmit }) {
@@ -26,11 +25,9 @@ function Authorization({ onSubmit }) {
                                   </div>`;
 
   function render() {
-    const oElementAuthorization = _.template(sShablonAuthorization)();
-
     const oRootElement = document.createElement('div');
     oRootElement.classList.add('authorizate');
-    oRootElement.innerHTML = oElementAuthorization;
+    oRootElement.innerHTML = sShablonAuthorization;
 
     if (onSubmit) {
       const oForm = oRootElement.querySelector('form');
