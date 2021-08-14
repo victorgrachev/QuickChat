@@ -6,6 +6,8 @@ function ChatRoom({ user, onSubmit }) {
                           <li id=<%-user.id%>><span><%-user.nickname%></span></li>
                         <% }); %>`;
 
+  const sShablonMsg = `<p><span><%-nickname%>: </span><%-msg%></p>`;
+
   const sShablonChatRoom = `<div class="room">
                               <h1>Now in the room</h1>
                               <ul>
@@ -32,16 +34,44 @@ function ChatRoom({ user, onSubmit }) {
     oRootElement.classList.add('chat-room');
     oRootElement.innerHTML = oRenderShablon;
 
-    const oForm = oRootElement.querySelector('.message-window form');
-    oForm.addEventListener('submit', (event) => {
-      if (onSubmit) {
-        onSubmit(event);
-      }
-    });
+    if (onSubmit) {
+      const oForm = oRootElement.querySelector('.message-window form');
+      oForm.addEventListener('submit', (event) => onSubmit(event));
+    }
+
     return oRootElement;
   }
 
+  function createMsg(p_msg, p_nickname) {
+    const oNewMsg = _.template(sShablonMsg)({
+      nickname: p_nickname ? p_nickname : 'Admin',
+      msg: p_msg,
+    });
+
+    let oElem = document.createElement('div');
+    oElem.innerHTML = oNewMsg;
+    oElem = oElem.firstElementChild;
+
+    return oElem;
+  }
+
+  function createUser(p_user) {
+    let tUser = [p_user];
+
+    const oNewUser = _.template(sShablonUser)({
+      user: tUser,
+    });
+
+    let oElem = document.createElement('div');
+    oElem.innerHTML = oNewUser;
+    oElem = oElem.firstElementChild;
+
+    return oElem;
+  }
+
   this.render = render;
+  ChatRoom.createMsg = createMsg;
+  ChatRoom.createUser = createUser;
 }
 
 export default ChatRoom;
