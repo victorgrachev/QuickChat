@@ -13,28 +13,28 @@ const webSocketServer = SocketIO(server, {
 let tUsers = [];
 
 webSocketServer.on('connection', (socket) => {
-  let nUser = {};
+  let oUser = {};
 
   socket.on('sign_in', (nickname, callback) => {
-    nUser = {
+    oUser = {
       id: new Date().getTime().toString(36),
       nickname: nickname ? nickname : 'Guest',
     };
 
-    tUsers.push(nUser);
+    tUsers.push(oUser);
 
-    socket.broadcast.emit('add_user', nUser);
-    socket.broadcast.emit('sign_msg', nUser.nickname);
-    setTimeout(() => callback({ user: tUsers }), 1000);
+    socket.broadcast.emit('user_connect', oUser);
+    socket.broadcast.emit('msg_connect_user', oUser.nickname);
+    setTimeout(() => callback(tUsers), 1000);
   });
 
-  socket.on('send_message', (p_msg, p_nickname) => {
-    socket.broadcast.emit('send_message_client', p_msg, p_nickname);
+  socket.on('send_msg', (p_msg, p_nickname) => {
+    socket.broadcast.emit('receive_msg', p_msg, p_nickname);
   });
 
   socket.on('disconnect', () => {
-    tUsers = tUsers.filter((user) => user.id != nUser.id);
-    socket.broadcast.emit('delete_user', nUser.id);
+    tUsers = tUsers.filter((user) => user.id != oUser.id);
+    socket.broadcast.emit('disconnect_user', oUser);
   });
 });
 

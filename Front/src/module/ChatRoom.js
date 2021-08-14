@@ -3,7 +3,7 @@ import '../styles/ChatRoom.css';
 
 function ChatRoom({ user, onSubmit }) {
   const sShablonUser = `<% user.forEach(user => {%>
-                          <li id=<%-user.id%>><span><%-user.nickname%></span></li>
+                          <li id="<%-user.id%>"<span><%-user.nickname%></span></li>
                         <% }); %>`;
 
   const sShablonMsg = `<p><span><%-nickname%>: </span><%-msg%></p>`;

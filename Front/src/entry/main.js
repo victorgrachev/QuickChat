@@ -4,6 +4,8 @@ import Loader from '@module/Loader.js';
 import ChatRoom from '@module/ChatRoom.js';
 import SocketIO from 'socket.io-client';
 
+const socket = SocketIO.connect('http://localhost:8080');
+
 const domContainer = {
   elem: document.querySelector('.container'),
   cleanContainer: function () {
@@ -15,30 +17,36 @@ const domContainer = {
 };
 
 let bAuthorization = false;
-let oAuthorization;
 let sNickNameUser;
-
-let socket = SocketIO.connect(`http://127.0.0.1:8080/`);
 
 const authorizationSubmit = (event) => {
   event.preventDefault();
   bAuthorization = true;
   sNickNameUser = event.target.firstElementChild.firstElementChild.value;
 
+  if (!sNickNameUser) sNickNameUser = 'Guest';
+
   domContainer.cleanContainer();
   domContainer.addContainer(new Loader().render());
 
-  socket.emit('sign_in', sNickNameUser, ({ user }) => {
+  socket.emit('sign_in', sNickNameUser, (p_user) => {
     const onSubmit = (event) => {
       event.preventDefault();
-      const sMsg = event.target[0].value;
-      event.target[0].value = '';
-      createMsg(sMsg, sNickNameUser);
-      socket.emit('send_message', sMsg, sNickNameUser);
+
+      const sMsg = event.target.firstElementChild.value;
+      event.target.firstElementChild.value = '';
+
+      const oNewMsg = ChatRoom.createMsg(sMsg, sNickNameUser);
+      document.querySelector('.chat-window').append(oNewMsg);
+
+      socket.emit('send_msg', sMsg, sNickNameUser);
     };
-    const oChatRoom = new ChatRoom({ user, onSubmit });
+
     domContainer.cleanContainer();
-    domContainer.addContainer(oChatRoom.render());
+    domContainer.addContainer(
+      new ChatRoom({ user: p_user, onSubmit }).render()
+    );
+
     const oNewMsg = ChatRoom.createMsg(
       `Welcome to QuickChat, ${sNickNameUser}!`
     );
@@ -46,61 +54,58 @@ const authorizationSubmit = (event) => {
   });
 };
 
-const onEventAddUser = ({ id, nickname }) => {
+domContainer.addContainer(
+  new Authorization({ onSubmit: authorizationSubmit }).render()
+);
+
+// User connect socket event
+const onEventUserConnect = ({ id, nickname }) => {
   if (!bAuthorization) {
     return;
   }
 
   const oListUser = document.querySelector('.room ul');
-
-  const oUser = document.createElement('li');
-  const atrID = document.createAttribute('id');
-  atrID.value = id;
-  oUser.setAttributeNode(atrID);
-
-  const oSpan = document.createElement('span');
-  oSpan.innerHTML = nickname;
-  oUser.append(oSpan);
-
+  const oUser = ChatRoom.createUser({ id, nickname });
   oListUser.append(oUser);
 };
+socket.on('user_connect', onEventUserConnect);
 
-const onEventDeleteUser = (id) => {
+// Message connect user socket event
+const onEventMsgConnectUser = (p_nickname) => {
   if (!bAuthorization) {
     return;
   }
 
-  const oUser = document.querySelector(`.room li#${id}`);
-  const sNickName = oUser.firstChild.innerHTML;
-  oUser.remove();
-  const oNewMsg = ChatRoom.createMsg(`${sNickName} disconnected`);
+  const oNewMsg = ChatRoom.createMsg(`${p_nickname} join QuickChat`);
   document.querySelector('.chat-window').append(oNewMsg);
 };
+socket.on('msg_connect_user', onEventMsgConnectUser);
 
-const onEventSignMsg = (nickname) => {
+// User disconnection socket event
+const onEventDisconnectUser = ({ id, nickname }) => {
   if (!bAuthorization) {
     return;
   }
-  const oNewMsg = ChatRoom.createMsg(`${nickname} join QuickChat`);
+
+  const oUserDisconnect = document.querySelector(`.room li#${id}`);
+  oUserDisconnect.remove();
+
+  const oNewMsg = ChatRoom.createMsg(`${nickname} disconnected`);
   document.querySelector('.chat-window').append(oNewMsg);
 };
+socket.on('disconnect_user', onEventDisconnectUser);
 
-const onEventSendMessageClient = (p_msg, p_nickname) => {
+// Receive message socket event
+const onEventReceiveMsg = (p_msg, p_nickname) => {
   if (!bAuthorization) {
     return;
   }
 
-  createMsg(p_msg, p_nickname);
+  const oNewMsg = ChatRoom.createMsg(p_msg, p_nickname);
+  document.querySelector('.chat-window').append(oNewMsg);
 
   const player = new Audio('inMessage.mp3');
   player.volume = 0.4;
   player.play();
 };
-
-oAuthorization = new Authorization({ onSubmit: authorizationSubmit });
-domContainer.addContainer(oAuthorization.render());
-
-socket.on('add_user', onEventAddUser);
-socket.on('delete_user', onEventDeleteUser);
-socket.on('sign_msg', onEventSignMsg);
-socket.on('send_message_client', onEventSendMessageClient);
+socket.on('receive_msg', onEventReceiveMsg);
