@@ -17,12 +17,19 @@ const domContainer = {
 };
 
 let bAuthorization = false;
-let sNickNameUser;
+let sNickNameUser = localStorage.getItem('user');
 
 const authorizationSubmit = (event) => {
-  event.preventDefault();
+  if (event) {
+    event.preventDefault();
+    sNickNameUser = event.target.firstElementChild.firstElementChild.value;
+
+    if (document.querySelector('#remember_me').checked) {
+      localStorage.setItem('user', sNickNameUser);
+    }
+  }
+
   bAuthorization = true;
-  sNickNameUser = event.target.firstElementChild.firstElementChild.value;
 
   if (!sNickNameUser) sNickNameUser = 'Guest';
 
@@ -54,9 +61,13 @@ const authorizationSubmit = (event) => {
   });
 };
 
-domContainer.addContainer(
-  new Authorization({ onSubmit: authorizationSubmit }).render()
-);
+if (!sNickNameUser) {
+  domContainer.addContainer(
+    new Authorization({ onSubmit: authorizationSubmit }).render()
+  );
+} else {
+  authorizationSubmit();
+}
 
 // User connect socket event
 const onEventUserConnect = ({ id, nickname }) => {
