@@ -3,39 +3,56 @@ const SocketIO = require('socket.io');
 
 const server = http.createServer();
 
-const webSocketServer = SocketIO(server, {
+const socket = SocketIO(server, {
   cors: {
-    origin: 'http://localhost:9000',
-    credentials: true,
+    origin: '*',
   },
 });
 
-let tUsers = [];
+// TODO Перенос пользователей в БД
+let users = [];
 
-webSocketServer.on('connection', (socket) => {
-  let oUser = {};
+socket.on('connection', (socket) => {
+  const token = new Date().getTime().toString(36);
 
-  socket.on('sign_in', (nickname, callback) => {
-    oUser = {
+  socket.on('registration', (nickname, func) => {
+    const user = {
       id: new Date().getTime().toString(36),
-      nickname: nickname ? nickname : 'Guest',
+      online: true,
+      nickname,
+      token,
     };
+    users.push(user);
 
-    tUsers.push(oUser);
-
-    socket.broadcast.emit('user_connect', oUser);
-    socket.broadcast.emit('msg_connect_user', oUser.nickname);
-    setTimeout(() => callback(tUsers), 1000);
+    func(token);
+    socket.registered = true;
+    socket.nickname = user.nickname;
+    socket.broadcast.emit('update_users', users);
   });
 
-  socket.on('send_msg', (p_msg, p_nickname) => {
-    socket.broadcast.emit('receive_msg', p_msg, p_nickname);
+  socket.on('get_users', (func) => {
+    setTimeout(func.bind(null, users), 1000);
+  });
+
+  socket.on('send_msg', (msg, nickname) => {
+    socket.emit('get_msg', msg, nickname);
+    socket.broadcast.emit('get_msg', msg, nickname);
   });
 
   socket.on('disconnect', () => {
-    tUsers = tUsers.filter((user) => user.id != oUser.id);
-    socket.broadcast.emit('disconnect_user', oUser);
+    if (!socket.registered) return;
+    const indx = users.findIndex((user) => user.token === token);
+
+    if (indx) {
+      users[indx].online = false;
+      socket.broadcast.emit('update_users', users);
+      socket.broadcast.emit(
+        'get_msg',
+        `${socket.nickname} disconnect`,
+        'Admin'
+      );
+    }
   });
 });
 
-server.listen('8080', '127.0.0.1', () => console.log(`Server start!`));
+server.listen('8080', 'localhost', () => console.log(`Server start!`));
