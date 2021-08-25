@@ -2,121 +2,75 @@ import '../styles/style.css';
 import Authorization from '@module/Authorization.js';
 import Loader from '@module/Loader.js';
 import ChatRoom from '@module/ChatRoom.js';
+import registerEventSocket from './registerEventSocket';
 import SocketIO from 'socket.io-client';
 
-const socket = SocketIO.connect('http://localhost:8080');
-
-const domContainer = {
-  elem: document.querySelector('.container'),
-  cleanContainer: function () {
-    this.elem.childNodes.forEach((child) => child.remove());
-  },
-  addContainer: function (p_elem) {
-    this.elem.append(p_elem);
-  },
-};
-
-let bAuthorization = false;
-let sNickNameUser = localStorage.getItem('user');
-
-const authorizationSubmit = (event) => {
-  if (event) {
-    event.preventDefault();
-    sNickNameUser = event.target.firstElementChild.firstElementChild.value;
-
-    if (document.querySelector('#remember_me').checked) {
-      localStorage.setItem('user', sNickNameUser);
-    }
-  }
-
-  bAuthorization = true;
-
-  if (!sNickNameUser) sNickNameUser = 'Guest';
-
-  domContainer.cleanContainer();
-  domContainer.addContainer(new Loader().render());
-
-  socket.emit('sign_in', sNickNameUser, (p_user) => {
-    const onSubmit = (event) => {
-      event.preventDefault();
-
-      const sMsg = event.target.firstElementChild.value;
-      event.target.firstElementChild.value = '';
-
-      const oNewMsg = ChatRoom.createMsg(sMsg, sNickNameUser);
-      document.querySelector('.chat-window').append(oNewMsg);
-
-      socket.emit('send_msg', sMsg, sNickNameUser);
-    };
-
-    domContainer.cleanContainer();
-    domContainer.addContainer(
-      new ChatRoom({ user: p_user, onSubmit }).render()
-    );
-
-    const oNewMsg = ChatRoom.createMsg(
-      `Welcome to QuickChat, ${sNickNameUser}!`
-    );
-    document.querySelector('.chat-window').append(oNewMsg);
-  });
-};
-
-if (!sNickNameUser) {
-  domContainer.addContainer(
-    new Authorization({ onSubmit: authorizationSubmit }).render()
-  );
-} else {
-  authorizationSubmit();
+function renderLoader() {
+  const load = new Loader();
+  container.clean();
+  container.append(load.render());
 }
 
-// User connect socket event
-const onEventUserConnect = ({ id, nickname }) => {
-  if (!bAuthorization) {
-    return;
-  }
+function renderAuthorization() {
+  const page = new Authorization((event) => {
+    event.preventDefault();
 
-  const oListUser = document.querySelector('.room ul');
-  const oUser = ChatRoom.createUser({ id, nickname });
-  oListUser.append(oUser);
+    nickname = event.target.firstElementChild.firstElementChild.value;
+    const rememberUser = document.querySelector('#remember_me').checked;
+
+    renderLoader();
+
+    socket.emit('registration', nickname, (value) => {
+      if (rememberUser) localStorage.setItem('token', value);
+    });
+
+    socket.emit('get_users', (users) => {
+      renderChatRoom(users);
+      socket.emit('send_msg', `${nickname} welcome QuickChat!`, 'Admin');
+    });
+  });
+
+  container.clean();
+  container.append(page.render());
+}
+
+function renderChatRoom(users) {
+  const paramPage = {
+    users,
+    eventSendMessage: (event) => {
+      event.preventDefault();
+      const msg = event.target.firstElementChild.value;
+      event.target.firstElementChild.value = '';
+      socket.emit('send_msg', msg, nickname);
+    },
+  };
+  const page = new ChatRoom(paramPage);
+
+  container.clean();
+  container.append(page.render());
+}
+
+const container = {
+  root: document.querySelector('.container'),
+  clean: function () {
+    this.root.childNodes.forEach((child) => child.remove());
+  },
+  append: function (content) {
+    this.root.append(content);
+  },
 };
-socket.on('user_connect', onEventUserConnect);
 
-// Message connect user socket event
-const onEventMsgConnectUser = (p_nickname) => {
-  if (!bAuthorization) {
-    return;
-  }
+const socket = SocketIO.connect('http://localhost:8080');
+const token = localStorage.getItem('token');
+let nickname;
 
-  const oNewMsg = ChatRoom.createMsg(`${p_nickname} join QuickChat`);
-  document.querySelector('.chat-window').append(oNewMsg);
-};
-socket.on('msg_connect_user', onEventMsgConnectUser);
+if (token) {
+  renderLoader();
+  socket.emit('get_users', (users) => {
+    renderChatRoom(users);
+  });
+} else {
+  renderAuthorization();
+}
 
-// User disconnection socket event
-const onEventDisconnectUser = ({ id, nickname }) => {
-  if (!bAuthorization) {
-    return;
-  }
-
-  const oUserDisconnect = document.querySelector(`.room li#${id}`);
-  oUserDisconnect.remove();
-
-  const oNewMsg = ChatRoom.createMsg(`${nickname} disconnected`);
-  document.querySelector('.chat-window').append(oNewMsg);
-};
-socket.on('disconnect_user', onEventDisconnectUser);
-
-// Receive message socket event
-const onEventReceiveMsg = (p_msg, p_nickname) => {
-  if (!bAuthorization) {
-    return;
-  }
-
-  const oNewMsg = ChatRoom.createMsg(p_msg, p_nickname);
-  document.querySelector('.chat-window').append(oNewMsg);
-
-  const player = new Audio('inMessage.mp3');
-  player.volume = 0.4;
-  player.play();
-};
-socket.on('receive_msg', onEventReceiveMsg);
+registerEventSocket(socket);

@@ -1,14 +1,13 @@
 import '../styles/Loader.css';
 
 function Loader() {
-  const sShablonLoader = `<div class="lds-dual-ring"></div>`;
+  const shablonLoader = `<div class="lds-dual-ring"></div>`;
 
   function render() {
-    const oRootElement = document.createElement('div');
-    oRootElement.classList.add('loader');
-    oRootElement.innerHTML = sShablonLoader;
-
-    return oRootElement;
+    const root = document.createElement('div');
+    root.classList.add('loader');
+    root.innerHTML = shablonLoader;
+    return root;
   }
 
   this.render = render;

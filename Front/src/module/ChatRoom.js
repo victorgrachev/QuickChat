@@ -1,17 +1,18 @@
 import _ from 'lodash';
 import '../styles/ChatRoom.css';
 
-function ChatRoom({ user, onSubmit }) {
-  const sShablonUser = `<% user.forEach(user => {%>
-                          <li id="<%-user.id%>"<span><%-user.nickname%></span></li>
-                        <% }); %>`;
+function ChatRoom({ users, eventSendMessage }) {
+  const shablonUser = `<% users.forEach(user => {
+                          if (user.online) {%>
+                          <li><span><%-user.nickname%></span></li>
+                        <%} }); %>`;
 
-  const sShablonMsg = `<p><span><%-nickname%>: </span><%-msg%></p>`;
+  const shablonMsg = `<p><span><%-nickname%>: </span><%-msg%></p>`;
 
-  const sShablonChatRoom = `<div class="room">
+  const shablonChatRoom = `<div class="room">
                               <h1>Now in the room</h1>
                               <ul>
-                                ${user ? sShablonUser : ''}
+                                ${users ? shablonUser : ''}
                               </ul>
                             </div>
                             <div class="chat">
@@ -26,52 +27,49 @@ function ChatRoom({ user, onSubmit }) {
                           </div>`;
 
   function render() {
-    const oRenderShablon = _.template(sShablonChatRoom)({
-      user,
+    const chatRoom = _.template(shablonChatRoom)({
+      users,
     });
 
-    const oRootElement = document.createElement('div');
-    oRootElement.classList.add('chat-room');
-    oRootElement.innerHTML = oRenderShablon;
+    const root = document.createElement('div');
+    root.classList.add('chat-room');
+    root.innerHTML = chatRoom;
 
-    if (onSubmit) {
-      const oForm = oRootElement.querySelector('.message-window form');
-      oForm.addEventListener('submit', (event) => onSubmit(event));
+    if (eventSendMessage) {
+      const form = root.querySelector('.message-window form');
+      form.addEventListener('submit', (event) => eventSendMessage(event));
     }
 
-    return oRootElement;
+    return root;
   }
 
-  function createMsg(p_msg, p_nickname) {
-    const oNewMsg = _.template(sShablonMsg)({
-      nickname: p_nickname ? p_nickname : 'Admin',
-      msg: p_msg,
+  function createMsg(msg, nickname) {
+    const newMsg = _.template(shablonMsg)({
+      nickname: nickname ? nickname : 'Admin',
+      msg,
     });
 
-    let oElem = document.createElement('div');
-    oElem.innerHTML = oNewMsg;
-    oElem = oElem.firstElementChild;
+    let root = document.createElement('div');
+    root.innerHTML = newMsg;
+    root = root.firstElementChild;
 
-    return oElem;
+    return root;
   }
 
-  function createUser(p_user) {
-    let tUser = [p_user];
-
-    const oNewUser = _.template(sShablonUser)({
-      user: tUser,
+  function renderUsers(users) {
+    const chatUsers = _.template(shablonUser)({
+      users,
     });
 
-    let oElem = document.createElement('div');
-    oElem.innerHTML = oNewUser;
-    oElem = oElem.firstElementChild;
+    let root = document.createElement('ul');
+    root.innerHTML = chatUsers;
 
-    return oElem;
+    return root;
   }
 
   this.render = render;
   ChatRoom.createMsg = createMsg;
-  ChatRoom.createUser = createUser;
+  ChatRoom.renderUsers = renderUsers;
 }
 
 export default ChatRoom;
