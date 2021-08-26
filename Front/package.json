@@ -28,6 +28,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "cookie": "^0.4.1",
     "eiows": "^3.6.1",
     "lodash": "^4.17.21",
     "socket-io": "^1.0.0",
