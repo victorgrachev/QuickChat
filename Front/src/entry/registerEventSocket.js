@@ -26,6 +26,10 @@ function registerEventSocket(socket) {
       room.append(ChatRoom.renderUsers(users));
     }
   });
+
+  socket.on('error_registration', (err_message) => {
+    alert(err_message);
+  });
 }
 
 export default registerEventSocket;

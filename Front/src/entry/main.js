@@ -4,6 +4,7 @@ import Loader from '@module/Loader.js';
 import ChatRoom from '@module/ChatRoom.js';
 import registerEventSocket from './registerEventSocket';
 import SocketIO from 'socket.io-client';
+import cookieParser from 'cookie';
 
 function renderLoader() {
   const load = new Loader();
@@ -17,16 +18,18 @@ function renderAuthorization() {
 
     nickname = event.target.firstElementChild.firstElementChild.value;
     const rememberUser = document.querySelector('#remember_me').checked;
+    console.log(nickname);
+    socket.emit('registration', nickname, rememberUser, (id) => {
+      renderLoader();
 
-    renderLoader();
+      if (rememberUser) {
+        document.cookie = 'user_info = ' + JSON.stringify({ id, nickname });
+      }
 
-    socket.emit('registration', nickname, (value) => {
-      if (rememberUser) localStorage.setItem('token', value);
-    });
-
-    socket.emit('get_users', (users) => {
-      renderChatRoom(users);
-      socket.emit('send_msg', `${nickname} welcome QuickChat!`, 'Admin');
+      socket.emit('get_users', (users) => {
+        renderChatRoom(users);
+        socket.emit('send_msg', `${nickname} welcome QuickChat!`, 'Admin');
+      });
     });
   });
 
@@ -60,17 +63,30 @@ const container = {
   },
 };
 
-const socket = SocketIO.connect('http://localhost:8080');
-const token = localStorage.getItem('token');
+const socket = SocketIO.connect('http://localhost:8080', {
+  withCredentials: true,
+  extraHeaders: {
+    user_info: 'user_info',
+  },
+});
+registerEventSocket(socket);
+
 let nickname;
 
-if (token) {
+if (document.cookie) {
+  const cookie = cookieParser.parse(document.cookie);
+
+  if (cookie.user_info) {
+    nickname = JSON.parse(cookie.user_info).nickname;
+  }
+}
+
+if (nickname) {
   renderLoader();
   socket.emit('get_users', (users) => {
     renderChatRoom(users);
+    socket.emit('send_msg', `${nickname} welcome QuickChat!`, 'Admin');
   });
 } else {
   renderAuthorization();
 }
-
-registerEventSocket(socket);
