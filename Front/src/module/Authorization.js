@@ -1,7 +1,7 @@
 import '../styles/Authorication.css';
 
-function Authorization({ onSubmit }) {
-  const sShablonAuthorization = `<div class="login">
+function Authorization(onSubmit) {
+  const shablonAuthorization = `<div class="login">
                                     <h1>Sign in</h1>
                                       <form>
                                           <p>
@@ -25,16 +25,15 @@ function Authorization({ onSubmit }) {
                                   </div>`;
 
   function render() {
-    const oRootElement = document.createElement('div');
-    oRootElement.classList.add('authorizate');
-    oRootElement.innerHTML = sShablonAuthorization;
-
+    const root = document.createElement('div');
+    root.classList.add('authorizate');
+    root.innerHTML = shablonAuthorization;
     if (onSubmit) {
-      const oForm = oRootElement.querySelector('form');
-      oForm.addEventListener('submit', (event) => onSubmit(event));
+      const form = root.querySelector('form');
+      form.addEventListener('submit', (event) => onSubmit(event));
     }
 
-    return oRootElement;
+    return root;
   }
 
   this.render = render;

@@ -1,41 +1,87 @@
 const http = require('http');
+const cookieParser = require('cookie');
 const SocketIO = require('socket.io');
 
 const server = http.createServer();
 
-const webSocketServer = SocketIO(server, {
+const connect = SocketIO(server, {
   cors: {
     origin: 'http://localhost:9000',
+    allowedHeaders: ['user_info'],
     credentials: true,
   },
 });
 
-let tUsers = [];
+// TODO Перенос пользователей в БД
+let users = [];
 
-webSocketServer.on('connection', (socket) => {
-  let oUser = {};
+connect.on('connection', (socket) => {
+  let userId;
 
-  socket.on('sign_in', (nickname, callback) => {
-    oUser = {
-      id: new Date().getTime().toString(36),
-      nickname: nickname ? nickname : 'Guest',
-    };
+  if (socket.handshake.headers.cookie) {
+    const cookie = cookieParser.parse(socket.handshake.headers.cookie);
 
-    tUsers.push(oUser);
+    if (cookie.user_info) {
+      userId = JSON.parse(cookie.user_info).id;
+      const indx = users.findIndex((user) => user.id === userId);
 
-    socket.broadcast.emit('user_connect', oUser);
-    socket.broadcast.emit('msg_connect_user', oUser.nickname);
-    setTimeout(() => callback(tUsers), 1000);
+      if (indx != -1) {
+        users[indx].online = true;
+      }
+    }
+  } else {
+    userId = new Date().getTime().toString(36);
+  }
+
+  socket.on('registration', (nickname, remember, func) => {
+    const indx = users.findIndex((user) => user.nickname === nickname);
+
+    if (indx === -1) {
+      const user = {
+        id: userId,
+        online: true,
+        nickname,
+        remember,
+      };
+      users.push(user);
+
+      func(userId);
+      socket.registered = true;
+      socket.nickname = user.nickname;
+      socket.broadcast.emit('update_users', users);
+    } else {
+      socket.emit('error_registration', 'User is already registered');
+    }
   });
 
-  socket.on('send_msg', (p_msg, p_nickname) => {
-    socket.broadcast.emit('receive_msg', p_msg, p_nickname);
+  socket.on('get_users', (func) => {
+    setTimeout(func.bind(null, users), 1000);
+  });
+
+  socket.on('send_msg', (msg, nickname) => {
+    socket.emit('get_msg', msg, nickname);
+    socket.broadcast.emit('get_msg', msg, nickname);
   });
 
   socket.on('disconnect', () => {
-    tUsers = tUsers.filter((user) => user.id != oUser.id);
-    socket.broadcast.emit('disconnect_user', oUser);
+    if (!socket.registered) return;
+    const indx = users.findIndex((user) => user.id === userId);
+
+    if (indx != -1) {
+      if (users[indx].remember) {
+        users[indx].online = false;
+      } else {
+        users.splice(indx, 1);
+      }
+
+      socket.broadcast.emit('update_users', users);
+      socket.broadcast.emit(
+        'get_msg',
+        `${socket.nickname} disconnect`,
+        'Admin'
+      );
+    }
   });
 });
 
-server.listen('8080', '127.0.0.1', () => console.log(`Server start!`));
+server.listen('8080', 'localhost', () => console.log(`Server start!`));
