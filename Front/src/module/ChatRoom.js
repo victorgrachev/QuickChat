@@ -18,10 +18,8 @@ function ChatRoom({ users, eventSendMessage }) {
                             <div class="chat">
                               <div class="chat-window"></div>
                               <div class="message-window">
-                                <form action="">
-                                  <textarea name="message_in" cols="70" rows="4"></textarea>
-                                  <button>Send</button>
-                                </form>
+                                <div id="msg_in"  contentEditable="true" data-text="Enter your message"></div>
+                                <button id="send_msg"></button>
                               </div>
                             </div>
                           </div>`;
@@ -36,8 +34,16 @@ function ChatRoom({ users, eventSendMessage }) {
     root.innerHTML = chatRoom;
 
     if (eventSendMessage) {
-      const form = root.querySelector('.message-window form');
-      form.addEventListener('submit', (event) => eventSendMessage(event));
+      const btnSend = root.querySelector('#send_msg');
+      btnSend.addEventListener('click', (event) => eventSendMessage(event));
+
+      const msgWindow = root.querySelector('#msg_in');
+      msgWindow.addEventListener('keyup', (event) => {
+        if (event.code === 'Enter') {
+          event.preventDefault();
+          btnSend.click();
+        }
+      });
     }
 
     return root;
