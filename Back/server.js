@@ -6,7 +6,7 @@ const server = http.createServer();
 
 const connect = SocketIO(server, {
   cors: {
-    origin: 'http://localhost:9000',
+    origin: 'http://127.0.0.1:9000',
     allowedHeaders: ['user_info'],
     credentials: true,
   },
@@ -84,4 +84,4 @@ connect.on('connection', (socket) => {
   });
 });
 
-server.listen('8080', 'localhost', () => console.log(`Server start!`));
+server.listen('8080', '127.0.0.1', () => console.log(`Server start!`));
