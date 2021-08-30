@@ -15,19 +15,17 @@
 
 .room {
   height: 100%;
-  width: 20%;
-  background-color: rgba(255, 255, 255, 0.685);
+  width: 40%;
   overflow: auto;
 }
 
 .room h1 {
   font-size: 25px;
   text-align: center;
-  margin: 0;
-  background-color: #666666;
-  background-clip: text;
-  color: transparent;
-  text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
+  margin: 20px auto;
+  padding: 20px;
+  color: rgb(250, 250, 250);
+  border-bottom: 10px double white;
 }
 
 .room h1:hover {
@@ -45,14 +43,8 @@
   font-size: 25px;
   padding: 10px;
   box-sizing: border-box;
-  border: 10px solid transparent;
-  border-image: linear-gradient(to right, transparent 0%, #adf2f7 100%);
-  border-image-slice: 1;
-  opacity: 0;
-  transition: 1s;
-  animation: show 1s 1;
-  animation-fill-mode: forwards;
-  animation-delay: 0.2s;
+  color: rgb(250, 250, 250);
+  border-bottom: 2px outset white;
 }
 
 .room li span {
@@ -70,40 +62,32 @@
 
 .room li:hover {
   cursor: default;
-  background-color: rgb(25, 202, 202);
+  background-color: rgb(96, 104, 104);
   user-select: none;
 }
 
 .chat {
   height: 100%;
-  width: 80%;
+  width: 60%;
 }
 
 .chat-window {
-  height: 80%;
+  height: 90%;
   padding: 20px;
-  border: 10px solid transparent;
-  border-image: linear-gradient(to right, transparent 0%, #adf2f7 100%);
-  border-image-slice: 1;
+  box-sizing: border-box;
   overflow: auto;
   color: white;
+  background-color: #2e2c2c;
 }
-
-/* .chat-window {
-} */
 
 .chat-window p {
   font-size: 25px;
   margin: 0;
-  background-color: #e9e9e9;
-  background-clip: text;
-  color: transparent;
   opacity: 0;
   transition: 1s;
   animation: show 1s 1;
   animation-fill-mode: forwards;
   animation-delay: 0.2s;
-  /* text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px; */
 }
 
 .chat-window p:hover {
@@ -116,43 +100,55 @@
 }
 
 .message-window {
-  height: 20%;
+  width: 100%;
+  height: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 }
 
-.message-window form {
-  height: 100%;
-}
-
-.message-window textarea {
-  padding: 12px 20px;
-  margin: 10px;
+#msg_in {
   box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  resize: none;
-  float: left;
+  padding: 10px;
+  color: white;
+  border-radius: 10px;
+  border: solid white 2px;
+  width: 90%;
+  height: 60px;
+  font-size: 25px;
+  overflow: auto;
 }
 
-.message-window form button {
-  padding: 10px;
-  margin: 10px;
-  font-weight: bold;
-  color: rgb(68, 68, 68);
-  text-decoration: none;
-  user-select: none;
+#msg_in[contentEditable='true']:not(:focus):before {
+  content: attr(data-text);
+  color: #a2acb4;
+  font-size: 25px;
+  position: sticky;
+  top: 10px;
+}
+
+#msg_in:focus {
   outline: none;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
-  background: rgb(245, 245, 245) linear-gradient(#f4f4f4, #f1f1f1);
 }
-.message-window form button:hover {
-  color: rgb(24, 24, 24);
-  border: 1px solid rgb(198, 198, 198);
-  background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+#send_msg {
+  position: relative;
+  border-radius: 50px;
+  width: 50px;
+  height: 50px;
+  border: solid white 2px;
+  background-image: url(https://cdn.icon-icons.com/icons2/1678/PNG/512/wondicon-ui-free-send_111204.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 18px;
+  background-size: contain;
+  transition-duration: 0.4s;
 }
-.message-window form button:active {
+
+#send_msg:hover {
+  background-color: gray;
+}
+
+#send_msg:active {
   color: rgb(51, 51, 51);
   border: 1px solid rgb(204, 204, 204);
   background: rgb(238, 238, 238)
