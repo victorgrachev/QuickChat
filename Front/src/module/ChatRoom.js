@@ -22,7 +22,7 @@ function ChatRoom({ users, eventSendMessage }) {
                                   <textarea name="message_in" cols="70" rows="4"></textarea>
                                   <button>Send</button>
                                 </form>
-                            </div>
+                              </div>
                             </div>
                           </div>`;
 
