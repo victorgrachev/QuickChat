@@ -18,7 +18,7 @@ function renderAuthorization() {
 
     nickname = event.target.firstElementChild.firstElementChild.value;
     const rememberUser = document.querySelector('#remember_me').checked;
-    console.log(nickname);
+
     socket.emit('registration', nickname, rememberUser, (id) => {
       renderLoader();
 
@@ -40,11 +40,10 @@ function renderAuthorization() {
 function renderChatRoom(users) {
   const paramPage = {
     users,
-    eventSendMessage: (event) => {
-      event.preventDefault();
-      const msg = event.target.firstElementChild.value;
-      event.target.firstElementChild.value = '';
-      socket.emit('send_msg', msg, nickname);
+    eventSendMessage: () => {
+      const msg = document.querySelector('#msg_in');
+      socket.emit('send_msg', msg.innerText, nickname);
+      msg.innerText = '';
     },
   };
   const page = new ChatRoom(paramPage);
@@ -63,7 +62,7 @@ const container = {
   },
 };
 
-const socket = SocketIO.connect('http://localhost:8080', {
+const socket = SocketIO.connect('http://127.0.0.1:8080', {
   withCredentials: true,
   extraHeaders: {
     user_info: 'user_info',
