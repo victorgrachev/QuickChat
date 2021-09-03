@@ -6,7 +6,7 @@ const server = http.createServer();
 
 const connect = SocketIO(server, {
   cors: {
-    origin: 'http://localhost:9000/',
+    origin: 'http://localhost:9000',
     allowedHeaders: ['user_info'],
     credentials: true,
   },
