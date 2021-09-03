@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "QuickChat",
   "scripts": {
-    "start": "concurrently \"(npm start --prefix Front)\" \"(npm run dev --prefix Back)\"",
-    "install_package": "concurrently \"(npm install --prefix Front)\" \"(npm install --prefix Back)\""
+    "start": "concurrently \"(npm start --prefix Front)\" \"(npm run dev --prefix Back)\""
   },
   "repository": {
     "type": "git",

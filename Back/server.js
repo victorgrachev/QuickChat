@@ -6,7 +6,7 @@ const server = http.createServer();
 
 const connect = SocketIO(server, {
   cors: {
-    origin: 'https://quickchat-4fe85.web.app/',
+    origin: 'http://localhost:9000/',
     allowedHeaders: ['user_info'],
     credentials: true,
   },
