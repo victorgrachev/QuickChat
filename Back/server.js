@@ -6,7 +6,7 @@ const server = http.createServer();
 
 const connect = SocketIO(server, {
   cors: {
-    origin: 'http://127.0.0.1:9000',
+    origin: 'https://quickchat-4fe85.web.app/',
     allowedHeaders: ['user_info'],
     credentials: true,
   },
@@ -84,4 +84,5 @@ connect.on('connection', (socket) => {
   });
 });
 
-server.listen('8080', '127.0.0.1', () => console.log(`Server start!`));
+const PORT = process.env.PORT || 8080;
+server.listen(PORT);

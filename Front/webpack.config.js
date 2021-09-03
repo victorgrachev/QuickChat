@@ -1,7 +1,30 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const OptimizeCssAssetPlugin = require('optimize-css-assets-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = !isDev;
+
+const optimization = () => {
+  const config = {
+    splitChunks: {
+      chunks: 'all',
+    },
+  };
+
+  if (isProd) {
+    config.minimizer = [
+      new TerserWebpackPlugin(),
+      new OptimizeCssAssetPlugin(),
+    ];
+  }
+
+  return config;
+};
 
 module.exports = {
   entry: {
@@ -19,8 +42,12 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'index.html'),
+      minify: {
+        collapseWhitespace: isProd,
+      },
     }),
     new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({ filename: '[name].[hash].css' }),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -38,7 +65,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
     ],
   },
@@ -47,5 +74,6 @@ module.exports = {
     compress: true,
     port: 9000,
   },
-  devtool: 'source-map',
+  devtool: isDev ? 'source-map' : false,
+  optimization: optimization(),
 };

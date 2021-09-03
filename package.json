@@ -1,10 +1,10 @@
 {
-  "name": "back",
+  "name": "quickchat",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "QuickChat",
   "scripts": {
-    "dev": "nodemon server.js"
+    "start": "concurrently \"(npm start --prefix Front)\" \"(npm run dev --prefix Back)\"",
+    "install_package": "concurrently \"(npm install --prefix Front)\" \"(npm install --prefix Back)\""
   },
   "repository": {
     "type": "git",
@@ -17,11 +17,6 @@
   },
   "homepage": "https://github.com/victorgrachev/QuickChat#readme",
   "dependencies": {
-    "cookie": "^0.4.1",
-    "socket-io": "^1.0.0",
-    "socket.io": "^4.1.3"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.12"
+    "concurrently": "^6.2.1"
   }
 }
