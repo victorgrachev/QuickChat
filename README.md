@@ -1,6 +1,7 @@
 # QuickChat
 
 QuickChat
+https://quickchat-4fe85.web.app/
 
 Для локального запуска проекта необходимо установить платформу NodeJS:
 https://nodejs.org/en/
