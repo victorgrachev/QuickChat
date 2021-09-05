@@ -4,7 +4,6 @@ import Loader from '@module/Loader.js';
 import ChatRoom from '@module/ChatRoom.js';
 import registerEventSocket from './registerEventSocket';
 import SocketIO from 'socket.io-client';
-import cookieParser from 'cookie';
 
 function renderLoader() {
   const load = new Loader();
@@ -16,18 +15,18 @@ function renderAuthorization() {
   const page = new Authorization((event) => {
     event.preventDefault();
 
-    nickname = event.target.firstElementChild.firstElementChild.value;
-    const rememberUser = document.querySelector('#remember_me').checked;
+    const nickname = document.querySelector('#nickname').value;
+    const remember = document.querySelector('#remember_me').checked;
 
-    socket.emit('registration', nickname, rememberUser, (id) => {
+    socket.emit('registration', nickname, remember, (userID) => {
       renderLoader();
 
-      if (rememberUser) {
-        document.cookie = 'user_info = ' + JSON.stringify({ id, nickname });
+      if (remember) {
+        localStorage.setItem('userID', userID);
       }
 
       socket.emit('get_users', (users) => {
-        renderChatRoom(users);
+        renderChatRoom(users, nickname);
         socket.emit('send_msg', `${nickname} welcome QuickChat!`, 'Admin');
       });
     });
@@ -37,7 +36,7 @@ function renderAuthorization() {
   container.append(page.render());
 }
 
-function renderChatRoom(users) {
+function renderChatRoom(users, nickname) {
   const paramPage = {
     users,
     eventSendMessage: () => {
@@ -62,30 +61,16 @@ const container = {
   },
 };
 
-const socket = SocketIO.connect('http://localhost:8080', {
-  withCredentials: true,
-  extraHeaders: {
-    user_info: 'user_info',
-  },
-});
+const socket = SocketIO.connect('http://localhost:8080');
 registerEventSocket(socket);
 
-let nickname;
+renderAuthorization();
 
-if (document.cookie) {
-  const cookie = cookieParser.parse(document.cookie);
+const userID = localStorage.getItem('userID');
 
-  if (cookie.user_info) {
-    nickname = JSON.parse(cookie.user_info).nickname;
-  }
-}
-
-if (nickname) {
-  renderLoader();
-  socket.emit('get_users', (users) => {
-    renderChatRoom(users);
-    socket.emit('send_msg', `${nickname} welcome QuickChat!`, 'Admin');
+if (userID) {
+  socket.emit('get_name', userID, (name) => {
+    document.querySelector('#nickname').value = name;
+    document.querySelector('#registration').click();
   });
-} else {
-  renderAuthorization();
 }
