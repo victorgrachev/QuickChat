@@ -77,6 +77,7 @@
   box-sizing: border-box;
   overflow: auto;
   color: white;
+  word-wrap: break-word;
   background-color: #2e2c2c;
 }
 
@@ -103,6 +104,7 @@
   width: 100%;
   height: 10%;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-around;
 }
@@ -114,17 +116,20 @@
   border-radius: 10px;
   border: solid white 2px;
   width: 90%;
-  height: 60px;
+  height: auto;
+  word-wrap: break-word;
   font-size: 25px;
-  overflow: auto;
+  line-height: ;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-#msg_in[contentEditable='true']:not(:focus):before {
+#msg_in[contentEditable='true']:empty:not(:focus):before {
   content: attr(data-text);
   color: #a2acb4;
   font-size: 25px;
+  padding: 10px;
   position: sticky;
-  top: 10px;
 }
 
 #msg_in:focus {
