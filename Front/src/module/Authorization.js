@@ -6,6 +6,7 @@ function Authorization(onSubmit) {
                                       <form>
                                           <p>
                                               <input
+                                              id="nickname"
                                               type="text"
                                               name="login"
                                               value=""
@@ -19,7 +20,7 @@ function Authorization(onSubmit) {
                                               </label>
                                           </p>
                                           <p class="submit">
-                                              <input type="submit" name="commit" value="Login" />
+                                              <input id="registration" type="submit" name="commit" value="Login" />
                                           </p>
                                       </form>
                                   </div>`;

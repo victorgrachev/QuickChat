@@ -4,7 +4,7 @@ import '../styles/ChatRoom.css';
 function ChatRoom({ users, eventSendMessage }) {
   const shablonUser = `<% users.forEach(user => {
                           if (user.online) {%>
-                          <li><span><%-user.nickname%></span></li>
+                          <li><span><%-user.name%></span></li>
                         <%} }); %>`;
 
   const shablonMsg = `<p><span><%-nickname%>: </span><%-msg%></p>`;
