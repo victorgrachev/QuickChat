@@ -1,7 +1,7 @@
-const User = require('./user.js');
+const UserDb = require('./UserDb.js');
 
 function registerEventSocket(io) {
-  const userDb = new User();
+  const userDb = new UserDb();
 
   io.on('connection', (socket) => {
     socket.on('registration', (name, remember, fn) => {
@@ -21,6 +21,8 @@ function registerEventSocket(io) {
         socket.userID = newUser.id;
         fn(socket.userID);
       }
+
+      socket.broadcast.emit('update_users', userDb.getUsers());
     });
 
     socket.on('get_name', (id, fn) => {
@@ -31,7 +33,7 @@ function registerEventSocket(io) {
     });
 
     socket.on('get_users', (func) => {
-      setTimeout(func.bind(null, userDb.getUsers()), 1000);
+      func(userDb.getUsers());
     });
 
     socket.on('send_msg', (msg, nickname) => {

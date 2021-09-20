@@ -1,4 +1,4 @@
-function User() {
+function UserDb() {
   const usersDb = [];
 
   function getUsers() {
@@ -56,7 +56,7 @@ function User() {
           } else {
             this.setRemember(newUser.id, false);
           }
-        }, 5000);
+        }, 3600000);
       }
 
       return newUser;
@@ -73,4 +73,4 @@ function User() {
   this.setRemember = setRemember;
 }
 
-module.exports = User;
+module.exports = UserDb;
